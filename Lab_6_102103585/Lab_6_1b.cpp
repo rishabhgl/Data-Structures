@@ -36,6 +36,11 @@ int main()
         arr[j+1] = key;
     }
 
+    for (int i = 0; i < in; i++)
+    {
+        cout << arr[i] << " ";
+    }
+
     cout << endl;
     cout << "Number of passes = " << passes << endl;
     cout << "Number of swaps = " << swaps << endl;

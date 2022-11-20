@@ -44,6 +44,9 @@ void postorder(node *ptr)
     }
 }
 
+int min(int a, int b) { return (a < b) ? a : b; }
+int max(int a, int b) { return (a > b) ? a : b; }
+
 void search(node *p)
 {
     if (temp->data < p->data && p->left != NULL)
@@ -65,25 +68,6 @@ void create()
     temp->right = NULL;
 }
 
-node *parent(node *ptr, int child)
-{
-    if (ptr->left != NULL || ptr->right != NULL)
-    {
-        if (root->data == child)
-        {
-            cout << "The child data is present in the root node, and it has no parent." << endl;
-            return root;
-        }
-        else
-        {
-            if (child > ptr->data)
-            {
-                
-            }
-        }
-    }
-}
-
 void insert()
 {
     create();
@@ -93,13 +77,13 @@ void insert()
         search(root);
 }
 
-int minimum(node *ptr)
+node *minimum(node *ptr)
 {
     while (ptr->left != NULL)
     {
         ptr = ptr->left;
     }
-    return ptr->data;
+    return ptr;
 }
 
 int maximum(node *ptr)
@@ -124,6 +108,130 @@ void count(node *ptr, int *leaf, int *internal)
     }
 }
 
+node *parent(node *child)
+{
+    if (child != root)
+    {
+        node *ptr = root;
+        while (ptr != NULL && (ptr->left != child && ptr->right != child))
+        {
+            if (ptr->data < child->data)
+                ptr = ptr->right;
+            else
+                ptr = ptr->left;
+        }
+        return ptr;
+    }
+    else
+        return NULL;
+}
+
+node *dataToPointer(int num)
+{
+    node *ptr = root;
+    while (ptr != NULL && ptr->data != num)
+    {
+        if (ptr->data > num)
+            ptr = ptr->left;
+        else
+            ptr = ptr->right;
+    }
+    return ptr;
+}
+
+node *findSuccessor(node *);
+
+void deleteNode(node *ptr)
+{
+    node *tempParent = parent(ptr);
+    node *successor;
+    if (ptr->left == NULL && ptr->right == NULL)
+    {
+        if (tempParent->left == ptr)
+            tempParent->left = NULL;
+        else
+            tempParent->right = NULL;
+        delete ptr;
+    }
+    else if (ptr->left != NULL && ptr->right != NULL)
+    {
+        successor = findSuccessor(ptr);
+        ptr->data = successor->data;
+        deleteNode(successor);
+    }
+    else
+    {
+        if (ptr->right != NULL)
+        {
+            if (tempParent->left == ptr)
+                tempParent->left = ptr->right;
+            else
+                tempParent->right = ptr->right;
+        }
+        else
+        {
+            if (tempParent->left == ptr)
+                tempParent->left = ptr->left;
+            else
+                tempParent->right = ptr->left;
+        }
+        delete ptr;
+    }
+}
+
+int min_depth(node *root)
+{
+    if (root->left != NULL && root->right != NULL)
+    {
+        return 1 + min(min_depth(root->left), min_depth(root->right));
+    }
+    else if (root->left != NULL)
+    {
+        return 1 + min_depth(root->left);
+    }
+    else if (root->right != NULL)
+    {
+        return 1 + min_depth(root->right);
+    }
+    else
+        return 0;
+}
+
+int max_depth(node *root)
+{
+    if (root->left != NULL && root->right != NULL)
+    {
+        return 1 + max(max_depth(root->left), max_depth(root->right));
+    }
+    else if (root->left != NULL)
+    {
+        return 1 + max_depth(root->left);
+    }
+    else if (root->right != NULL)
+    {
+        return 1 + max_depth(root->right);
+    }
+    else
+        return 0;
+}
+
+node *findSuccessor(node *pre)
+{
+    node *tempParent;
+    if (pre->right != NULL)
+        return minimum(pre->right);
+    else
+    {
+        tempParent = parent(pre);
+        while (tempParent != NULL && tempParent->left != pre)
+        {
+            pre = tempParent;
+            tempParent = parent(pre);
+        }
+        return tempParent;
+    }
+}
+
 int main()
 {
     int menu = 1, childData, leaf = 0, internal = 0;
@@ -139,40 +247,61 @@ int main()
             inorder(root);
             break;
         case 3:
-            cout << "The minimum value in the present BST is = " << minimum(root) << endl;
+            // cout << "The minimum value in the present BST is = " << minimum(root) << endl;
+            preorder(root);
             break;
         case 4:
-            cout << "The maximum value in the present BST is = " << maximum(root) << endl;
+            // cout << "The maximum value in the present BST is = " << maximum(root) << endl;
+            postorder(root);
             break;
         case 5:
             cout << "Enter the data of the child whose parent must be found:" << endl;
             cin >> childData;
-            cout << "Data in parent of parent node is " << parent(root, childData)->data << endl;
+            child = dataToPointer(childData);
+            if (child != NULL)
+            {
+                child = parent(child);
+                cout << "Data in parent node is " << child->data << endl;
+            }
             break;
         case 6:
-            count(root, &leaf, &internal);
-            cout << "Number of leaf nodes is: " << leaf << endl;
-            leaf = 0;
-            internal = 0;
+            // count(root, &leaf, &internal);
+            // cout << "Number of leaf nodes is: " << leaf << endl;
+            // leaf = 0;
+            // internal = 0;
+            cout << "Enter the data of the item that must be deleted: " << endl;
+            cin >> childData;
+            child = dataToPointer(childData);
+            deleteNode(child);
             break;
         case 7:
-            count(root, &leaf, &internal);
-            cout << "Number of internal nodes is: " << internal << endl;
-            leaf = 0;
-            internal = 0;
+            // count(root, &leaf, &internal);
+            // cout << "Number of internal nodes is: " << internal << endl;
+            // leaf = 0;
+            // internal = 0;
+            cout << "The minimum depth of the BST is " << min_depth(root) << endl;
+            break;
+        case 8:
+            cout << "The maximum depth of the BST is " << max_depth(root) << endl;
             break;
         default:
             break;
         }
         cout << "1. Insert node" << endl;
         cout << "2. Print BST in order" << endl;
-        cout << "3. Minimum value in BST" << endl;
-        cout << "4. Maximum value in BST" << endl;
-        cout << "5. Parent of set node" << endl;
-        cout << "6. Number of leaf nodes in present BST" << endl;
-        cout << "7. Number of internal nodes in present BST" << endl;
+        cout << "3. Print BST pre order" << endl;
+        cout << "4. Print BST post order" << endl;
+        // cout << "3. Minimum value in BST" << endl;
+        // cout << "4. Maximum value in BST" << endl;
+        cout << "5. Parent of given node" << endl;
+        // cout << "6. Number of leaf nodes in present BST" << endl;
+        // cout << "7. Number of internal nodes in present BST" << endl;
+        cout << "6. Delete a node" << endl;
+        cout << "7. Minimum depth of the BST" << endl;
+        cout << "8. Maximum depth of the BST" << endl;
         cout << "0. Exit" << endl;
-        cout << "Enter menu item: " << endl;
+        cout << endl
+             << "Enter menu item: " << endl;
         cin >> menu;
     }
     return 0;

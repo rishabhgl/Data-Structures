@@ -3,7 +3,7 @@
 using namespace std;
 
 //Date: 10 November
-//Implementation of heap sort
+//Implementation of heap sort (decreasing order)
 
 void minHeapify(int * arr,int beg,int end)
 {
@@ -27,11 +27,24 @@ void minHeapify(int * arr,int beg,int end)
     }
 }
 
-void buildMinHeap(int * arr,int stop)
+void buildMinHeap(int * arr,int size)
 {
-    for (int i = stop; i < -1; i--)
+    for (int i = (size/2)-1; i > -1; i--)
     {
+        minHeapify(arr,i,size-1);
+    }
+}
 
+void heapSort(int * arr,int size)
+{
+    buildMinHeap(arr,size);
+    int temp;
+    for (int i = size - 1; i > 0; i--)
+    {
+        temp = arr[i];
+        arr[i] = arr[0];
+        arr[0] = temp;
+        minHeapify(arr,0,i-1);
     }
 }
 
@@ -46,7 +59,7 @@ int main()
     {
         cin >> arr[i];
     }
-    buildMinHeap(arr,size/2-1);
+    heapSort(arr,size);
     for (int i = 0; i < size; i++)
     {
         cout << arr[i] << " ";
